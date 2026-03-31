@@ -35,13 +35,29 @@ Designed for security researchers, red teamers, and pentesters who need a **hand
 
 ## Screenshots
 
-**Phase 1 — macvlan interface rotation + RustScan + CVE flood**
-![Phase 1 macvlan RustScan CVEs](docs/screenshots/3.png)
+**1 — Startup: ASCII banner, tool detection (15 tools available), Phase 0 passive recon — whois resolves Akamai/Linode, OSINT multi-source initiated**
+![Startup banner and tool detection](docs/screenshots/1.png)
 
-**CVE table — high CVSS scores with NVD links**
-![CVE table CVSS](docs/screenshots/7.png)
+**2 — Phase 0 OSINT: crt.sh, Whois email extraction (ip-admin@akamai.com, abuse@linode.com), DNS brute → 21 active subdomains (www, mail, ftp, ssh, admin...), 2 IPs resolved, 4 emails found**
+![OSINT phase 0 results](docs/screenshots/2.png)
 
----
+**3 — Phase 1: macvlan rotation (thor0/thor1/thor2, distinct MACs/IPs), RustScan full range → 5 ports (21/ftp, 22/ssh, 80/http, 9929, 31337), Phase 2 fingerprint, Phase 3 decision engine selects 14 NSE scripts, Phase 4a CVE flood begins (CVE-2023-38408 CVSS:9.8)**
+![Phase 1 macvlan RustScan Phase 3 CVEs](docs/screenshots/3.png)
+
+**4 — Phase 4a continued: CVE flood from NSE+vulners — mix of 2024/2023/2022/2021 CVEs with CVSS 9.8, 9.1, 9.0, 8.3, 8.1, 7.5 scores in real time**
+![CVE flood high CVSS 2024 2023](docs/screenshots/4.png)
+
+**5 — Phase 4b Vulscan (8 offline DBs: cve, exploitdb, openvas, osvdb, scipvuldb, securityfocus, securitytracker, xforce) → 113 CVEs, Phase 5 targeted tools (WhatWeb, Nikto, Gobuster 10 paths, Nuclei, FTP anon check), Phase 6 Risk Scoring CRÍTICO 3898 pts, rich terminal table: ports + services + findings**
+![Phase 4b vulscan Phase 5 tools Phase 6 risk score rich table](docs/screenshots/5.png)
+
+**6 — End of CVE list (vulscan offline DBs, CVEs from 1999-2001 with NVD links), Risk Rate panel CRÍTICO 3898 pts — CVEs: 200, Findings: 8, Tools: 6, Phase 7 report generation → MD/TXT/JSON/HTML output paths, scan complete**
+![End CVE list risk rate panel Phase 7 report generation](docs/screenshots/6.png)
+
+**7 — Rich CVE table: high-CVSS entries in red with CVSS scores and direct NVD links (CVE-2021-26691 9.8, CVE-2018-1312 9.8, CVE-2024-40898 9.1, CVE-2025-58098 8.3, CVE-2025-59775 7.5...)**
+![Rich CVE table NVD links](docs/screenshots/7.png)
+
+**8 — Full OSINT summary: DNS-brute + DNS-extended sources, 21 subdomains, 2 IPs, suggested ports [80,443,8080,8443,22,21,25,3389], 4 emails, Hallazgos: Sí — continuar scan**
+![Full OSINT summary](docs/screenshots/8.png)
 
 ---
 
@@ -384,7 +400,9 @@ Buenos Aires, Argentina
 
 ## License
 
-MIT License — see [LICENSE](LICENSE)
+GNU General Public License v3.0 — see [LICENSE](LICENSE)
+
+This program is free software: you can redistribute it and/or modify it under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
 
 > This tool is provided for authorized security testing and research only.  
 > The author assumes no liability for misuse.
