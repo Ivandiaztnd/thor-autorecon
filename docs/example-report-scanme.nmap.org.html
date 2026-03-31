@@ -1,0 +1,2963 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>THOR — scanme.nmap.org (45.33.32.156)</title>
+<style>
+  :root {
+    --bg: #0d1117; --bg2: #161b22; --bg3: #21262d;
+    --border: #30363d; --text: #c9d1d9; --text2: #8b949e;
+    --cyan: #58a6ff; --green: #3fb950; --red: #f85149;
+    --orange: #d29922; --yellow: #e3b341; --purple: #bc8cff;
+  }
+  * { box-sizing:border-box; margin:0; padding:0 }
+  body { background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,sans-serif; font-size:14px; line-height:1.6 }
+  a { color:var(--cyan); text-decoration:none } a:hover { text-decoration:underline }
+
+  header { background:var(--bg2); border-bottom:1px solid var(--border); padding:20px 40px; display:flex; align-items:center; gap:20px }
+  .logo { font-family:monospace; font-size:22px; color:var(--cyan); font-weight:700; letter-spacing:4px }
+  .header-info { flex:1 }
+  .target-name { font-size:20px; font-weight:600 }
+  .scan-meta { color:var(--text2); font-size:12px }
+
+  .risk-badge { padding:6px 18px; border-radius:20px; font-weight:700; font-size:13px; background:#e74c3c22; color:#e74c3c; border:1px solid #e74c3c44 }
+
+  main { max-width:1200px; margin:0 auto; padding:30px 20px }
+
+  .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:30px }
+  .stat-card { background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:16px; text-align:center }
+  .stat-num { font-size:32px; font-weight:700; line-height:1 }
+  .stat-label { color:var(--text2); font-size:11px; margin-top:4px; text-transform:uppercase; letter-spacing:1px }
+  .stat-red { color:var(--red) } .stat-orange { color:var(--orange) } .stat-green { color:var(--green) } .stat-cyan { color:var(--cyan) }
+
+  section { background:var(--bg2); border:1px solid var(--border); border-radius:8px; padding:20px; margin-bottom:20px }
+  h2 { font-size:16px; font-weight:600; color:var(--cyan); margin-bottom:16px; padding-bottom:8px; border-bottom:1px solid var(--border) }
+  h3 { font-size:13px; font-weight:600; margin:16px 0 8px }
+
+  table { width:100%; border-collapse:collapse }
+  th { text-align:left; color:var(--text2); font-size:11px; text-transform:uppercase; letter-spacing:1px; padding:8px; border-bottom:1px solid var(--border) }
+  td { padding:8px; border-bottom:1px solid var(--border)22; font-family:monospace; font-size:13px }
+  tr:hover td { background:var(--bg3) }
+  .version { color:var(--text2); font-size:12px }
+
+  .badge { display:inline-block; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:600; margin-left:6px }
+  .critical { background:#f8514922; color:#f85149; border:1px solid #f8514944 }
+  .high     { background:#d2992222; color:#d29922; border:1px solid #d2992244 }
+  .medium   { background:#e3b34122; color:#e3b341; border:1px solid #e3b34144 }
+  .low      { background:#3fb95022; color:#3fb950; border:1px solid #3fb95044 }
+  .info     { background:#58a6ff22; color:#58a6ff; border:1px solid #58a6ff44 }
+
+  .cve-card { background:var(--bg3); border:1px solid var(--border); border-radius:6px; padding:12px 16px; margin-bottom:10px }
+  .cve-exploit { border-color:#f8514966; background:#f8514908 }
+  .cve-header { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:8px }
+  .cve-id { font-family:monospace; font-weight:700; color:var(--text); font-size:14px }
+  .cve-db { color:var(--text2); font-size:11px; margin-left:auto }
+  .cve-links { display:flex; gap:12px; flex-wrap:wrap }
+  .cve-links a { font-size:12px; background:var(--bg2); border:1px solid var(--border); padding:3px 10px; border-radius:4px }
+  .exploit-badge { background:#f8514922; color:#f85149; border:1px solid #f8514944; padding:2px 8px; border-radius:4px; font-size:11px; font-weight:700 }
+  .exploit-link { background:#f8514922 !important; color:#f85149 !important; border-color:#f8514966 !important }
+
+  .tech-pill { display:inline-block; background:var(--bg3); border:1px solid var(--border); border-radius:12px; padding:3px 10px; margin:3px; font-size:12px; color:var(--text2) }
+
+  ul { padding-left:20px }
+  li { margin-bottom:6px; font-size:13px }
+  code { background:var(--bg3); border:1px solid var(--border); border-radius:3px; padding:1px 5px; font-family:monospace; font-size:12px; color:var(--purple) }
+
+  .bar-wrap { background:var(--bg3); border-radius:4px; height:8px; margin-top:8px }
+  .bar { height:8px; border-radius:4px; background:#e74c3c; transition:width 1s }
+
+  footer { text-align:center; color:var(--text2); font-size:11px; padding:20px; border-top:1px solid var(--border); margin-top:20px }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">⚡ THOR</div>
+  <div class="header-info">
+    <div class="target-name">scanme.nmap.org (45.33.32.156)</div>
+    <div class="scan-meta">2026-03-30 18:17:12 · Duración: 0:19:08 · OS: cpe:/o:microsoft:windows_10 cpe:/h:asus:rt-ac66u cpe:/o:linux:linux_kernel:2.6 cpe:/h:asus:rt-n10 cpe:/h:axis:211_network_camera cpe:/o:linux:linux_kernel:2.4 cpe:/o:microsoft:windows_server_2019 cpe:/h:lexmark:c534dn</div>
+  </div>
+  <div class="risk-badge">CRÍTICO — 3898 pts</div>
+</header>
+<main>
+<div class="stats-grid">
+  <div class="stat-card"><div class="stat-num stat-cyan">5</div><div class="stat-label">Puertos abiertos</div></div>
+  <div class="stat-card"><div class="stat-num stat-red">200</div><div class="stat-label">CVEs totales</div></div>
+  <div class="stat-card"><div class="stat-num stat-red">0</div><div class="stat-label">Exploits públicos</div></div>
+  <div class="stat-card"><div class="stat-num stat-orange">8</div><div class="stat-label">Findings</div></div>
+  <div class="stat-card"><div class="stat-num stat-green">6</div><div class="stat-label">Tools ejecutadas</div></div>
+  <div class="stat-card"><div class="stat-num" style="color:#e74c3c">3898</div><div class="stat-label">Risk Score</div><div class="bar-wrap"><div class="bar" style="width:100%;background:#e74c3c"></div></div></div>
+</div>
+
+<section style="border-color:#e74c3c44;background:#e74c3c08">
+  <h2 style="color:#e74c3c">Risk Rate — CRÍTICO (3898 pts)</h2>
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-bottom:20px">
+    <div style="grid-column:1/-1">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:6px">
+        <span>INFORMATIVO</span><span>BAJO</span><span>MEDIO</span><span>ALTO</span><span>CRÍTICO</span>
+      </div>
+      <div style="height:12px;border-radius:6px;background:linear-gradient(to right,#3fb950,#e3b341,#d29922,#f85149);position:relative">
+        <div style="position:absolute;top:-4px;left:98%;transform:translateX(-50%);width:8px;height:20px;background:white;border-radius:2px;border:2px solid #e74c3c"></div>
+      </div>
+      <div style="text-align:center;margin-top:8px;font-size:13px;font-weight:700;color:#e74c3c">
+        Score: 3898 / 200+ pts → CRÍTICO
+      </div>
+    </div>
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:16px">
+      <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px">Desglose del Score</div>
+      
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)">
+                  <span style="font-size:12px;color:var(--text)">Puertos críticos expuestos (2)</span>
+                  <span style="font-weight:700;color:#d29922;font-size:13px">10</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)">
+                  <span style="font-size:12px;color:var(--text)">CVEs detectados (200 × 10pts)</span>
+                  <span style="font-weight:700;color:#f85149;font-size:13px">2000</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)">
+                  <span style="font-size:12px;color:var(--text)">Findings ALTO (1 × 15pts)</span>
+                  <span style="font-weight:700;color:#d29922;font-size:13px">15</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)">
+                  <span style="font-size:12px;color:var(--text)">Findings MEDIO (2 × 8pts)</span>
+                  <span style="font-weight:700;color:#e3b341;font-size:13px">16</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid var(--border)">
+                  <span style="font-size:12px;color:var(--text)">Findings BAJO (5 × 3pts)</span>
+                  <span style="font-weight:700;color:#3fb950;font-size:13px">15</span>
+                </div>
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;margin-top:4px">
+              <span style="font-size:13px;font-weight:600;color:var(--text)">TOTAL</span>
+              <span style="font-weight:700;color:#e74c3c;font-size:16px">3898 pts</span>
+            </div>
+    </div>
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:8px;padding:16px">
+      <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:12px;text-transform:uppercase;letter-spacing:1px">Tabla de Clasificación</div>
+      <table style="width:100%;font-size:12px">
+        <tr><td style="padding:4px 8px"><span class="badge info">INFORMATIVO</span></td><td style="color:var(--text2)">0–9 pts</td></tr>
+        <tr><td style="padding:4px 8px"><span class="badge low">BAJO</span></td><td style="color:var(--text2)">10–39 pts</td></tr>
+        <tr><td style="padding:4px 8px"><span class="badge medium">MEDIO</span></td><td style="color:var(--text2)">40–79 pts</td></tr>
+        <tr><td style="padding:4px 8px"><span class="badge high">ALTO</span></td><td style="color:var(--text2)">80–149 pts</td></tr>
+        <tr><td style="padding:4px 8px"><span class="badge critical">CRÍTICO</span></td><td style="color:var(--text2)">150+ pts</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section>
+  <h2>Inteligencia OSINT</h2>
+  <table>
+    <thead><tr><th>Campo</th><th>Valor</th></tr></thead>
+    <tbody><tr><td>Organización</td><td>Linode</td></tr><tr><td>Subdominios (21)</td><td style='font-family:monospace;font-size:11px'>admin.nmap.org, api.nmap.org, app.nmap.org, cloud.nmap.org, db.nmap.org, dev.nmap.org, ftp.nmap.org, imap.nmap.org, mail.nmap.org, mx.nmap.org, ns1.nmap.org, ns2.nmap.org, pop.nmap.org, portal.nmap.org, remote.nmap.org, smtp.nmap.org, ssh.nmap.org, staging.nmap.org, vpn.nmap.org, webmail.nmap.org (+1 más)</td></tr><tr><td>Emails expuestos</td><td style='font-family:monospace;font-size:11px'>abuse@akamai.com, abuse@linode.com, ip-admin@akamai.com, support@linode.com</td></tr><tr><td>Fuentes consultadas</td><td>DNS-brute, DNS-extended</td></tr></tbody>
+  </table>
+</section>
+<section><h2>Puertos Abiertos (5)</h2><table><thead><tr><th>Puerto</th><th>Proto</th><th>Servicio</th><th>Versión</th></tr></thead><tbody><tr><td><strong>21</strong></td><td>TCP</td><td>ftp?</td><td class='version'></td></tr><tr><td><strong>22</strong></td><td>TCP</td><td>ssh</td><td class='version'>OpenSSH 6.6.1p1 Ubuntu 2ubuntu2.13 (Ubuntu Linux; protocol 2.0)</td></tr><tr><td><strong>80</strong></td><td>TCP</td><td>http</td><td class='version'>Apache httpd 2.4.7 ((Ubuntu))</td></tr><tr><td><strong>9929</strong></td><td>TCP</td><td>nping-echo</td><td class='version'>Nping echo</td></tr><tr><td><strong>31337</strong></td><td>TCP</td><td>tcpwrapped</td><td class='version'></td></tr></tbody></table></section>
+<section><h2>Stack Tecnológico</h2><span class="tech-pill">Apache</span><span class="tech-pill">http Apache httpd 2.4.7 ((Ubuntu))</span><span class="tech-pill">nping-echo Nping echo</span><span class="tech-pill">ssh OpenSSH 6.6.1p1 Ubuntu 2ubuntu2.13 (Ubuntu Linux; protocol 2.0)</span></section>
+<section><h2>CVEs Encontrados (200)</h2>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2023-38408</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2023-38408" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-38408" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2023-38408" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2016-1908</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2016-1908" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-1908" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2016-1908" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2015-5600</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2015-5600" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-5600" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2015-5600" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2020-15778</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2020-15778" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-15778" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2020-15778" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2016-6515</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2016-6515" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-6515" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2016-6515" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2016-10012</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2016-10012" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-10012" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2016-10012" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2015-8325</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2015-8325" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-8325" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2015-8325" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2016-10708</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2016-10708" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-10708" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2016-10708" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2016-10009</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2016-10009" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-10009" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2016-10009" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2021-41617</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2021-41617" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-41617" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2021-41617" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2016-10010</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2016-10010" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-10010" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2016-10010" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2015-6564</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2015-6564" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-6564" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2015-6564" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2019-6110</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2019-6110" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-6110" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2019-6110" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2019-6109</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2019-6109" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-6109" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2019-6109" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2023-51385</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2023-51385" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-51385" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2023-51385" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2016-3115</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2016-3115" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-3115" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2016-3115" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2023-48795</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2023-48795" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-48795" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2023-48795" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2020-14145</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2020-14145" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-14145" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2020-14145" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2019-6111</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2019-6111" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-6111" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2019-6111" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2018-15473</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2018-15473" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-15473" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2018-15473" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2016-6210</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2016-6210" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-6210" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2016-6210" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2016-10011</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2016-10011" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-10011" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2016-10011" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2018-20685</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2018-20685" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-20685" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2018-20685" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2018-15919</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2018-15919" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-15919" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2018-15919" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2017-15906</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2017-15906" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-15906" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2017-15906" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2016-20012</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2016-20012" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-20012" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2016-20012" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2015-5352</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2015-5352" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-5352" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2015-5352" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2024-38476</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2024-38476" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-38476" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2024-38476" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2024-38474</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2024-38474" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-38474" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2024-38474" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2023-25690</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2023-25690" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-25690" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2023-25690" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2022-31813</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2022-31813" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-31813" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2022-31813" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2022-23943</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2022-23943" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-23943" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2022-23943" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2022-22720</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2022-22720" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-22720" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2022-22720" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2021-44790</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2021-44790" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-44790" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2021-44790" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2021-39275</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2021-39275" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-39275" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2021-39275" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2021-26691</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2021-26691" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-26691" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2021-26691" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2018-1312</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2018-1312" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-1312" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2018-1312" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2017-7679</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2017-7679" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-7679" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2017-7679" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2017-3169</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2017-3169" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-3169" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2017-3169" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2017-3167</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2017-3167" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-3167" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2017-3167" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2024-40898</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2024-40898" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-40898" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2024-40898" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2024-38475</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2024-38475" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-38475" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2024-38475" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2022-28615</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2022-28615" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-28615" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2022-28615" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2022-22721</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2022-22721" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-22721" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2022-22721" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2017-9788</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2017-9788" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9788" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2017-9788" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2022-36760</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2022-36760" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-36760" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2022-36760" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2021-40438</span>
+                <span class="badge critical">CRÍTICO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2021-40438" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-40438" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2021-40438" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2025-58098</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2025-58098" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-58098" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2025-58098" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2021-44224</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2021-44224" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-44224" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2021-44224" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2024-38473</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2024-38473" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-38473" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2024-38473" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2017-15715</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2017-15715" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-15715" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2017-15715" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2016-5387</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2016-5387" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-5387" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2016-5387" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2025-59775</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2025-59775" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-59775" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2025-59775" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2024-47252</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2024-47252" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-47252" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2024-47252" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2024-43394</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2024-43394" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-43394" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2024-43394" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2024-43204</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2024-43204" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-43204" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2024-43204" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2024-42516</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2024-42516" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-42516" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2024-42516" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2024-39573</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2024-39573" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-39573" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2024-39573" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2024-38477</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2024-38477" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-38477" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2024-38477" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2024-38472</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2024-38472" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-38472" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2024-38472" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2023-31122</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2023-31122" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-31122" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2023-31122" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2022-30556</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2022-30556" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-30556" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2022-30556" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2022-29404</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2022-29404" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-29404" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2022-29404" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2022-26377</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2022-26377" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-26377" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2022-26377" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2022-22719</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2022-22719" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-22719" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2022-22719" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2021-34798</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2021-34798" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-34798" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2021-34798" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2021-33193</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2021-33193" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-33193" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2021-33193" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2021-26690</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2021-26690" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-26690" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2021-26690" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2019-0217</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2019-0217" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-0217" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2019-0217" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2018-8011</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2018-8011" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-8011" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2018-8011" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2018-17199</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2018-17199" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-17199" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2018-17199" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2018-1303</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2018-1303" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-1303" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2018-1303" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2017-9798</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2017-9798" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-9798" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2017-9798" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2017-15710</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2017-15710" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2017-15710" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2017-15710" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2016-8743</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2016-8743" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-8743" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2016-8743" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2016-2161</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2016-2161" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-2161" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2016-2161" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2016-0736</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2016-0736" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-0736" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2016-0736" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2006-20001</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2006-20001" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-20001" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2006-20001" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2025-49812</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2025-49812" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-49812" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2025-49812" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2023-38709</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2023-38709" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2023-38709" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2023-38709" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2020-35452</span>
+                <span class="badge high">ALTO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2020-35452" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-35452" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2020-35452" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2014-0226</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2014-0226" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0226" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2014-0226" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2025-65082</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2025-65082" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-65082" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2025-65082" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2024-24795</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2024-24795" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2024-24795" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2024-24795" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2020-1927</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2020-1927" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-1927" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2020-1927" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2019-10098</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2019-10098" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-10098" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2019-10098" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2019-10092</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2019-10092" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-10092" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2019-10092" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2016-4975</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2016-4975" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-4975" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2016-4975" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2018-1302</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2018-1302" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-1302" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2018-1302" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2018-1301</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2018-1301" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-1301" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2018-1301" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2020-13938</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2020-13938" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-13938" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2020-13938" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2025-66200</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2025-66200" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2025-66200" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2025-66200" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2022-37436</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2022-37436" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-37436" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2022-37436" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2022-28614</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2022-28614" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-28614" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2022-28614" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2022-28330</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2022-28330" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2022-28330" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2022-28330" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2020-1934</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2020-1934" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-1934" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2020-1934" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2020-11985</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2020-11985" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-11985" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2020-11985" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2019-17567</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2019-17567" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-17567" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2019-17567" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2019-0220</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2019-0220" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-0220" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2019-0220" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2018-1283</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2018-1283" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2018-1283" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2018-1283" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2015-3183</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2015-3183" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-3183" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2015-3183" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2015-0228</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2015-0228" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-0228" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2015-0228" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2014-3581</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2014-3581" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-3581" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2014-3581" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2014-3523</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2014-3523" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-3523" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2014-3523" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2014-0231</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2014-0231" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0231" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2014-0231" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2014-0098</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2014-0098" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0098" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2014-0098" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2013-6438</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2013-6438" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-6438" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2013-6438" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2013-5704</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2013-5704" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-5704" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2013-5704" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2016-8612</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2016-8612" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2016-8612" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2016-8612" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2015-3185</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2015-3185" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2015-3185" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2015-3185" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2014-8109</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2014-8109" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-8109" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2014-8109" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2014-0118</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2014-0118" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0118" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2014-0118" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2014-0117</span>
+                <span class="badge medium">MEDIO</span>
+                
+                <span class="cve-db">nmap-NSE</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2014-0117" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2014-0117" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2014-0117" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2012-5975</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2012-5975" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-5975" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2012-5975" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2012-5536</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2012-5536" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-5536" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2012-5536" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2010-5107</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2010-5107" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-5107" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2010-5107" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2008-1483</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2008-1483" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-1483" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2008-1483" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2007-3102</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2007-3102" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-3102" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2007-3102" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2004-2414</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2004-2414" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2004-2414" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2004-2414" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2012-2378</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2012-2378" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-2378" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2012-2378" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2013-2249</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2013-2249" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2249" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2013-2249" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2012-4558</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2012-4558" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-4558" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2012-4558" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2012-3502</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2012-3502" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-3502" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2012-3502" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2012-3499</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2012-3499" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-3499" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2012-3499" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2012-3451</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2012-3451" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-3451" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2012-3451" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2012-2687</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2012-2687" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-2687" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2012-2687" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2012-2379</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2012-2379" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-2379" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2012-2379" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2012-0883</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2012-0883" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-0883" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2012-0883" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2011-2516</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2011-2516" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-2516" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2011-2516" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2013-3464</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2013-3464" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-3464" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2013-3464" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2013-2479</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2013-2479" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2479" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2013-2479" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2013-2206</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2013-2206" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-2206" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2013-2206" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2013-0499</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2013-0499" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2013-0499" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2013-0499" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2012-2394</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2012-2394" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2012-2394" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2012-2394" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2011-2395</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2011-2395" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-2395" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2011-2395" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2011-2059</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2011-2059" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-2059" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2011-2059" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2011-1385</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2011-1385" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-1385" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2011-1385" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2010-4563</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2010-4563" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-4563" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2010-4563" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2010-4562</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2010-4562" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-4562" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2010-4562" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2010-2529</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2010-2529" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-2529" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2010-2529" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2010-0119</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2010-0119" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2010-0119" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2010-0119" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2009-5135</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2009-5135" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-5135" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2009-5135" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2009-2402</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2009-2402" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-2402" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2009-2402" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2009-2401</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2009-2401" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-2401" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2009-2401" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2009-1683</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2009-1683" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2009-1683" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2009-1683" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2008-7034</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2008-7034" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-7034" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2008-7034" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2008-3705</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2008-3705" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-3705" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2008-3705" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2008-3671</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2008-3671" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-3671" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2008-3671" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2008-0526</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2008-0526" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-0526" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2008-0526" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2008-0355</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2008-0355" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2008-0355" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2008-0355" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2007-5576</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2007-5576" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-5576" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2007-5576" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2007-4213</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2007-4213" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-4213" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2007-4213" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2007-3335</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2007-3335" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-3335" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2007-3335" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2007-2866</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2007-2866" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-2866" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2007-2866" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2007-1988</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2007-1988" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-1988" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2007-1988" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2007-1987</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2007-1987" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-1987" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2007-1987" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2007-1834</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2007-1834" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-1834" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2007-1834" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2007-0343</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2007-0343" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2007-0343" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2007-0343" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2006-3146</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2006-3146" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-3146" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2006-3146" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2006-2741</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2006-2741" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-2741" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2006-2741" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2006-2639</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2006-2639" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-2639" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2006-2639" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2006-2272</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2006-2272" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-2272" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2006-2272" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2006-1030</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2006-1030" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-1030" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2006-1030" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2006-0454</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2006-0454" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-0454" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2006-0454" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2006-0374</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2006-0374" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2006-0374" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2006-0374" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2005-0443</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2005-0443" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2005-0443" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2005-0443" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2004-1700</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2004-1700" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2004-1700" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2004-1700" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2004-1410</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2004-1410" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2004-1410" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2004-1410" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2004-1133</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2004-1133" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2004-1133" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2004-1133" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2004-0819</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2004-0819" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2004-0819" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2004-0819" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2004-0673</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2004-0673" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2004-0673" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2004-0673" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2004-0303</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2004-0303" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2004-0303" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2004-0303" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2004-0302</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2004-0302" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2004-0302" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2004-0302" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2003-1282</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2003-1282" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2003-1282" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2003-1282" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2003-1222</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2003-1222" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2003-1222" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2003-1222" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2003-0944</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2003-0944" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2003-0944" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2003-0944" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2003-0943</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2003-0943" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2003-0943" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2003-0943" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2003-0293</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2003-0293" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2003-0293" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2003-0293" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2003-0022</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2003-0022" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2003-0022" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2003-0022" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2003-0021</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2003-0021" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2003-0021" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2003-0021" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2002-2129</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2002-2129" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2002-2129" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2002-2129" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2002-1632</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2002-1632" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2002-1632" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2002-1632" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2002-1453</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2002-1453" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2002-1453" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2002-1453" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2002-1168</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2002-1168" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2002-1168" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2002-1168" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2002-0574</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2002-0574" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2002-0574" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2002-0574" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2001-1382</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2001-1382" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2001-1382" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2001-1382" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2001-0754</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2001-0754" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2001-0754" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2001-0754" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2001-0752</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2001-0752" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2001-0752" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2001-0752" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2001-0313</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2001-0313" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2001-0313" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2001-0313" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2001-0309</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2001-0309" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2001-0309" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2001-0309" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2001-0057</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2001-0057" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2001-0057" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2001-0057" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2000-1216</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2000-1216" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2000-1216" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2000-1216" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2000-0418</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2000-0418" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2000-0418" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2000-0418" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-2000-0213</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-2000-0213" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2000-0213" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=2000-0213" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-1999-1297</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-1999-1297" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-1999-1297" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=1999-1297" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-1999-1201</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-1999-1201" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-1999-1201" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=1999-1201" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-1999-0635</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-1999-0635" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-1999-0635" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=1999-0635" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-1999-0523</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-1999-0523" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-1999-0523" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=1999-0523" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-1999-0344</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-1999-0344" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-1999-0344" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=1999-0344" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div>
+            <div class="cve-card ">
+              <div class="cve-header">
+                <span class="cve-id">CVE-1999-0103</span>
+                <span class="badge info">N/A</span>
+                
+                <span class="cve-db">vulners</span>
+              </div>
+              <div class="cve-links">
+                <a href="https://nvd.nist.gov/vuln/detail/CVE-1999-0103" target="_blank">NVD</a>
+                <a href="https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-1999-0103" target="_blank">MITRE</a>
+                <a href="https://www.exploit-db.com/search?cve=1999-0103" target="_blank">ExploitDB</a>
+                
+              </div>
+            </div></section>
+<section><h2>Hallazgos de Seguridad</h2><h3><span class="badge high">ALTO</span> ALTO (1)</h3><ul><li><code>[decision-engine]</code> Puerto 22: OpenSSH versión potencialmente vulnerable: openssh 6.6.1p1 ubuntu 2ubuntu2.13 (ubuntu linux; protocol 2.0)</li></ul><h3><span class="badge medium">MEDIO</span> MEDIO (2)</h3><ul><li><code>[nuclei:80]</code> Puerto 80: [[92mssh-weak-algo-supported[0m] [[94mjavascript[0m] [[33mmedium[0m] 45.33.32.156:22</li><li><code>[nuclei:80]</code> Puerto 80: [[92mCVE-2023-48795[0m] [[94mjavascript[0m] [[33mmedium[0m] 45.33.32.156:22 [[96m"Vulnerable to Terrapin"[0m]</li></ul><h3><span class="badge low">BAJO</span> BAJO (5)</h3><ul><li><code>[osint-whois]</code> Puerto 0: Email en registros públicos: ip-admin@akamai.com</li><li><code>[osint-whois]</code> Puerto 0: Email en registros públicos: abuse@linode.com</li><li><code>[osint-whois]</code> Puerto 0: Email en registros públicos: support@linode.com</li><li><code>[osint-whois]</code> Puerto 0: Email en registros públicos: abuse@akamai.com</li><li><code>[osint-crtsh]</code> Puerto 0: 21 subdominios/certs expuestos públicamente</li></ul></section>
+
+<section><h2>Herramientas Ejecutadas (6)</h2><div style="display:flex;flex-wrap:wrap;gap:8px"><span class="tech-pill" style="background:#3fb95022;border:1px solid #3fb95044;color:#3fb950">nmap-NSE</span><span class="tech-pill" style="background:#3fb95022;border:1px solid #3fb95044;color:#3fb950">vulscan</span><span class="tech-pill" style="background:#d2992222;border:1px solid #d2992244;color:#d29922">whatweb:80</span><span class="tech-pill" style="background:#d2992222;border:1px solid #d2992244;color:#d29922">nikto:80</span><span class="tech-pill" style="background:#d2992222;border:1px solid #d2992244;color:#d29922">gobuster:80</span><span class="tech-pill" style="background:#f8514922;border:1px solid #f8514944;color:#f85149">nuclei:80</span></div></section>
+</main>
+<footer>THOR Framework v6.0 · Auto Module · 2026-03-30 18:17:12</footer>
+</body>
+</html>
