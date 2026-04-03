@@ -394,7 +394,7 @@ Buenos Aires, Argentina
 ## Related Projects
 
 - **THOR Enterprise** — Full RedTeam, Threat Hunt & Offensive Recon Engine Framework with web dashboard, multi-tier executive reports (CEO/CFO, SOC/IT, Technical), and Flask/AJAX frontend. *(Closed source)*
-- **OSIRIS-AI** — AI-assisted autonomous pentest framework powered by local LLMs via Ollama (phi3, phi4, dolphin). Zero cloud dependency, runs on any hardware. *(In development)*
+- **THOR-AI-Engine** — AI-assisted autonomous pentest framework powered by local LLMs via Ollama (xxx3, xxx4, dxxxxxn). Zero cloud dependency, runs on any hardware. *(In development)*
 
 ---
 
